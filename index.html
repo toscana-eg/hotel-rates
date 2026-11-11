@@ -1,0 +1,1093 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>إدارة فنادق وتقارير</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#0f172a; --navy2:#1e293b; --navy3:#334155;
+  --amber:#f59e0b; --amber-d:#d97706;
+  --bg:#f8fafc; --card:#fff; --line:#e2e8f0; --line2:#cbd5e1;
+  --muted:#64748b; --text:#0f172a;
+  --green:#0f6b52; --green-d:#0b5340; --red:#dc2626; --red-bg:#fef2f2;
+  --font:'Cairo','Segoe UI',Tahoma,'Noto Sans Arabic',system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.55;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+.ic{flex:none;vertical-align:middle}
+[hidden]{display:none!important}
+
+/* ---------- header ---------- */
+.hdr{background:var(--navy);color:#fff;height:64px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:16px;padding:0 24px;box-shadow:0 2px 8px rgba(15,23,42,.25);position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:12px}
+.brand h1{margin:0;font-size:20px;font-weight:800;white-space:nowrap}
+.logo{width:36px;height:36px;border-radius:8px;background:var(--amber);color:var(--navy);display:grid;place-items:center;font-weight:800;font-size:15px;font-family:'Segoe UI',Arial,sans-serif}
+.tabs{display:flex;gap:4px;background:var(--navy2);padding:4px;border-radius:10px}
+.tab{border:0;background:transparent;color:#cbd5e1;padding:7px 18px;border-radius:8px;font-weight:600;font-size:14px}
+.tab:hover{color:#fff}
+.tab.on{background:var(--amber);color:var(--navy);font-weight:700}
+.tools{display:flex;align-items:center;gap:12px;justify-content:flex-start}
+.who{display:flex;flex-direction:column;align-items:flex-start;line-height:1.2}
+.who-n{font-size:13px;font-weight:600}
+.role{font-size:10px;font-weight:700;padding:1px 7px;border-radius:5px;background:var(--amber);color:var(--navy);margin-top:2px}
+.role.r-editor{background:#38bdf8}.role.r-viewer{background:#94a3b8}
+.btn-save{display:flex;align-items:center;gap:8px;border:0;background:var(--green);color:#fff;padding:8px 16px;border-radius:8px;font-weight:700;position:relative}
+.btn-save:hover:not(:disabled){background:var(--green-d)}
+.btn-save:disabled{background:#1b4a3f;color:#7fa89c;cursor:not-allowed}
+.btn-save .cnt{background:var(--amber);color:var(--navy);border-radius:999px;font-size:11px;min-width:20px;height:20px;display:grid;place-items:center;padding:0 5px}
+.btn-save .cnt:empty{display:none}
+.btn-out{display:flex;align-items:center;gap:6px;background:transparent;border:1px solid #475569;color:#fff;padding:7px 14px;border-radius:8px}
+.btn-out:hover{background:var(--navy2)}
+
+/* ---------- common ---------- */
+.btn-dark,.btn-amber,.btn-ghost,.btn-danger,.btn-light{display:inline-flex;align-items:center;gap:6px;border-radius:8px;padding:7px 14px;font-weight:600;border:1px solid transparent;font-size:13.5px}
+.btn-dark{background:var(--navy);color:#fff}.btn-dark:hover{background:var(--navy3)}
+.btn-amber{background:var(--amber);color:var(--navy)}.btn-amber:hover{background:var(--amber-d)}
+.btn-ghost{background:#fff;border-color:var(--line2);color:var(--navy)}.btn-ghost:hover{background:#f1f5f9}
+.btn-light{background:#f1f5f9;color:var(--navy)}.btn-light:hover{background:#e2e8f0}
+.btn-danger{background:#fff;border-color:#fecaca;color:var(--red)}.btn-danger:hover{background:var(--red-bg)}
+button:disabled{opacity:.55;cursor:not-allowed}
+.icon-btn{border:0;background:transparent;color:var(--muted);padding:5px;border-radius:6px;display:inline-grid;place-items:center}
+.icon-btn:hover:not(:disabled){background:#f1f5f9;color:var(--navy)}
+.icon-btn.danger:hover:not(:disabled){background:var(--red-bg);color:var(--red)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px}
+.page-pad{max-width:1150px;margin:0 auto;padding:28px 24px}
+.page-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}
+.page-head h2{margin:0;font-size:20px;font-weight:800;display:flex;align-items:center;gap:8px}
+.hint{color:var(--muted);font-size:12.5px;margin-top:14px}
+table.tbl{width:100%;border-collapse:collapse}
+.tbl th{background:#f8fafc;color:#475569;font-weight:600;font-size:13px;text-align:right;padding:11px 16px;border-bottom:1px solid var(--line)}
+.tbl td{padding:12px 16px;border-bottom:1px solid #f1f5f9;vertical-align:middle}
+.tbl tr:last-child td{border-bottom:0}
+.badge{display:inline-block;font-size:11.5px;font-weight:700;padding:2px 9px;border-radius:6px;background:#f1f5f9;color:#475569}
+.badge.amber{background:#fef3c7;color:#92400e}.badge.sky{background:#e0f2fe;color:#075985}.badge.gray{background:#e2e8f0;color:#334155}
+.badge.red{background:#fee2e2;color:#991b1b}.badge.green{background:#dcfce7;color:#166534}
+.muted{color:var(--muted)}
+.small{font-size:12px}
+#toasts{position:fixed;top:76px;left:50%;transform:translateX(-50%);z-index:90;display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none}
+.toast{background:var(--navy);color:#fff;padding:10px 18px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-weight:600;max-width:90vw}
+.toast.err{background:#b91c1c}.toast.ok{background:var(--green)}
+#busy{position:fixed;inset:0;background:rgba(248,250,252,.6);z-index:80;display:grid;place-items:center}
+.spinner{width:42px;height:42px;border:4px solid #cbd5e1;border-top-color:var(--amber);border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+/* ---------- login ---------- */
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:20px;background:linear-gradient(160deg,var(--navy) 0%,#1e293b 60%,#334155 100%)}
+.login-card{width:100%;max-width:400px;background:#fff;border-radius:16px;padding:32px 30px;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.login-card .logo{width:54px;height:54px;border-radius:12px;font-size:20px;margin:0 auto 14px}
+.login-card h1{text-align:center;margin:0 0 4px;font-size:22px;font-weight:800}
+.login-card .sub{text-align:center;color:var(--muted);margin-bottom:22px;font-size:13px}
+.f{display:flex;flex-direction:column;gap:5px;margin-bottom:14px;font-size:13px}
+.f>span{font-weight:600;color:#334155}
+.f input,.f select,.f textarea,.inp{border:1px solid var(--line2);border-radius:8px;padding:9px 12px;background:#fff;width:100%;outline:none}
+.f input:focus,.f select:focus,.f textarea:focus,.inp:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(245,158,11,.2)}
+.f input[readonly]{background:#f1f5f9;color:#64748b}
+.errbox{background:var(--red-bg);color:#991b1b;border:1px solid #fecaca;border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:13px;font-weight:600}
+.infobox{background:#fffbeb;color:#92400e;border:1px solid #fde68a;border-radius:8px;padding:9px 12px;margin-bottom:14px;font-size:13px}
+.login-card .btn-dark{width:100%;justify-content:center;padding:11px;font-size:15px}
+
+/* ---------- hotels screen ---------- */
+.regionbar{display:flex;align-items:center;gap:14px;padding:12px 24px;background:#fff;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.rb-title{display:flex;align-items:center;gap:7px;font-weight:800;font-size:15px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;flex:1}
+.chip{border:1px solid var(--line2);background:#f8fafc;color:#334155;border-radius:999px;padding:5px 15px;font-weight:600;font-size:13px}
+.chip:hover{background:#f1f5f9}
+.chip.on{background:var(--navy);border-color:var(--navy);color:#fff}
+.chip .n{opacity:.65;font-weight:500;margin-inline-start:5px;font-size:12px}
+.hgrid{display:grid;grid-template-columns:440px 1fr;min-height:calc(100vh - 64px - 55px)}
+.lpane{background:#fff;border-inline-end:1px solid var(--line);padding:16px 14px;display:flex;flex-direction:column;gap:12px}
+.lp-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.lp-head h2{margin:0;font-size:16px;font-weight:800;display:flex;align-items:center;gap:8px}
+.hlist{display:flex;flex-direction:column;gap:9px}
+.hcard{display:flex;align-items:center;gap:10px;border:1px solid var(--line);border-radius:10px;padding:10px 10px;background:#fff;cursor:pointer;position:relative}
+.hcard:hover{border-color:var(--line2);box-shadow:0 2px 8px rgba(15,23,42,.06)}
+.hcard.sel{border-color:var(--amber);box-shadow:0 0 0 2px rgba(245,158,11,.25)}
+.hcard.dragging{opacity:.4}
+.hcard.drop-before::before,.hcard.drop-after::after{content:"";position:absolute;left:0;right:0;height:3px;background:var(--amber);border-radius:2px}
+.hcard.drop-before::before{top:-6px}.hcard.drop-after::after{bottom:-6px}
+.grip{color:#94a3b8;cursor:grab;display:grid;place-items:center;padding:2px}
+.hc-main{flex:1;min-width:0}
+.hc-name{font-weight:700;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-ar{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hc-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px}
+.stars{color:var(--amber);letter-spacing:1px;font-size:12px}
+.hc-tools{display:flex;align-items:center;gap:0}
+.empty-sm{color:var(--muted);text-align:center;padding:28px 10px}
+.epane{padding:22px 26px 60px;background:var(--bg)}
+.placeholder{height:50vh;display:grid;place-items:center;color:#94a3b8;font-weight:600;text-align:center}
+.ed-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.ed-head h3{margin:0;font-size:18px;font-weight:800}
+.ed-actions{display:flex;gap:8px;flex-wrap:wrap}
+.ecard{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:16px}
+.ecard>h4{margin:0 0 14px;font-size:15px;font-weight:800;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 14px}
+.chk{display:flex;align-items:center;gap:8px;font-weight:600;margin:4px 0 10px}
+.chk input{width:17px;height:17px;accent-color:var(--navy)}
+.room{border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px;background:#fcfdff}
+.room-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-weight:700}
+.ptable{width:100%;border-collapse:collapse;margin:4px 0 8px}
+.ptable th{font-size:12px;color:var(--muted);font-weight:600;text-align:right;padding:2px 4px 4px}
+.ptable td{padding:3px 4px}
+.ptable input{padding:6px 8px;font-size:13px}
+.sec{border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:12px;background:#fcfdff}
+.sec-top{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.sec textarea{min-height:92px;resize:vertical}
+.meta-line{color:var(--muted);font-size:12px;margin-top:-8px;margin-bottom:14px}
+
+/* ---------- reports ---------- */
+.rtop{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:#fff;border-bottom:1px solid var(--line);gap:12px;flex-wrap:wrap}
+.rtop h2{margin:0;font-size:18px;font-weight:800;display:flex;align-items:center;gap:8px}
+.rfilter{display:flex;align-items:center;gap:12px;margin:14px 24px;padding:10px 16px;background:#fff;border:1px solid var(--line);border-radius:10px;flex-wrap:wrap}
+.rfilter b{display:flex;align-items:center;gap:6px}
+.pendnote{margin:0 24px 12px;padding:8px 14px;background:#fffbeb;border:1px solid #fde68a;color:#92400e;border-radius:8px;font-size:13px;font-weight:600}
+.report-area{background:#e2e8f0;padding:24px;overflow-x:auto}
+.sheet{width:190mm;margin:0 auto}
+.hr{background:#fff;border:1px solid var(--line2);border-radius:8px;overflow:hidden;margin:0 0 18px;display:block;break-inside:avoid;page-break-inside:avoid}
+.hr-banner{text-align:center;color:#fff;font-weight:800;font-size:12.5px;padding:5px 10px;letter-spacing:.4px}
+.c-sky{background:#0ea5e9}.c-amber{background:#facc15;color:#1f2937}.c-green{background:#16a34a}.c-red{background:#dc2626}.c-violet{background:#7c3aed}.c-gray{background:#64748b}.c-navy{background:#0f172a}
+.hr-head{background:var(--navy);color:#fff;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:11px 16px}
+.hr-en{font-size:19px;font-weight:800;line-height:1.3}
+.hr-sub{font-size:12px;color:#cbd5e1;margin-top:1px}
+.hr-ar{font-size:15.5px;font-weight:600;color:#e2e8f0;text-align:left;padding-top:2px}
+.hr-body{padding:11px 14px 8px}
+.rt{width:100%;border-collapse:collapse;font-size:12.5px}
+.rt th{background:#f1f5f9;border:1px solid var(--line2);padding:5px 8px;font-weight:700;text-align:right;font-family:'Segoe UI',Arial,sans-serif;font-size:12px}
+.rt td{border:1px solid var(--line2);padding:5px 8px;vertical-align:middle}
+.rt td.c{text-align:center;font-variant-numeric:tabular-nums}
+.rt .t-en{font-weight:600;font-family:'Segoe UI',Arial,sans-serif}
+.rt .t-ar{font-size:11px;color:#64748b}
+.hr-cbc{background:#d9f99d;color:#365314;font-weight:800;text-align:center;padding:8px 10px;border-radius:4px;font-size:14px}
+.hr-sec{margin-top:9px}
+.hr-sec h4{margin:0 0 3px;font-size:13px;font-weight:800}
+.hr-sec ul{list-style:none;margin:0;padding:0}
+.hr-sec li{position:relative;padding-inline-start:15px;font-size:12.5px;line-height:1.7}
+.hr-sec li::before{content:"";position:absolute;inset-inline-start:2px;top:.62em;width:6px;height:6px;border-radius:1px;background:var(--bullet,#f59e0b)}
+.hr-sec.s0{--bullet:#f59e0b}.hr-sec.s1{--bullet:#ec4899}.hr-sec.s2{--bullet:#0ea5e9}.hr-sec.s3{--bullet:#22c55e}.hr-sec.s4{--bullet:#8b5cf6}
+.empty-big{text-align:center;color:var(--muted);padding:60px 10px;font-weight:600}
+
+/* ---------- modal ---------- */
+.modal-ov{position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:70;display:grid;place-items:center;padding:16px}
+.modal{background:#fff;border-radius:14px;width:100%;max-width:480px;max-height:92vh;overflow:auto;box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.modal.wide{max-width:600px}
+.m-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--line)}
+.m-head h3{margin:0;font-size:17px;font-weight:800}
+.m-body{padding:18px 20px}
+.m-foot{display:flex;gap:8px;padding:0 20px 18px}
+.rgn-box{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#fafbfc}
+.rgn-box .chk{margin:6px 0}
+.rgn-box hr{border:0;border-top:1px solid var(--line);margin:8px 0}
+.rrow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+ul.plain{margin:0;padding-inline-start:18px}
+ul.plain li{margin:4px 0}
+
+@media (max-width:980px){
+  .hdr{grid-template-columns:1fr;height:auto;padding:10px 14px;gap:8px}
+  .hgrid{grid-template-columns:1fr}
+  .lpane{border-inline-end:0;border-bottom:1px solid var(--line)}
+  .grid2,.grid3{grid-template-columns:1fr}
+}
+
+/* ---------- print ---------- */
+@page{size:A4;margin:10mm}
+@media print{
+  html,body{background:#fff!important}
+  .noprint,.hdr,#toasts,#busy,#modalRoot{display:none!important}
+  .shell,#view,.report-view{display:block!important}
+  .report-area{background:none!important;padding:0!important;overflow:visible!important}
+  .sheet{margin:0!important;width:190mm!important}
+  .hr{border-radius:0;margin:0 0 6mm}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toasts"></div>
+<div id="busy" hidden><div class="spinner"></div></div>
+<div id="modalRoot"></div>
+<script src="config.js"></script>
+<script>
+(function () {
+'use strict';
+
+/* ====================================================================
+   ثوابت وأدوات
+   ==================================================================== */
+const API_URL = String((window.APP_CONFIG && window.APP_CONFIG.API_URL) || '').trim();
+const IDLE_MS = 60 * 60 * 1000;
+const LS_KEY = 'hotelRates.session';
+const ROLE_AR = { admin: 'مدير', editor: 'محرر', viewer: 'مشاهد' };
+const COLORS = [['sky', 'أزرق'], ['amber', 'أصفر'], ['green', 'أخضر'], ['red', 'أحمر'], ['violet', 'بنفسجي'], ['gray', 'رمادي'], ['navy', 'كحلي']];
+const BASIS = ['Soft All Inclusive', 'All Inclusive', 'Half Board', 'Full Board', 'Bed & Breakfast', 'Room Only'];
+const ACTION_AR = {
+  login: 'تسجيل دخول', 'hotel.create': 'إضافة فندق', 'hotel.update': 'تعديل فندق', 'hotel.delete': 'حذف فندق',
+  'hotel.reorder': 'ترتيب الفنادق', 'region.create': 'إضافة منطقة', 'region.rename': 'تعديل منطقة', 'region.delete': 'حذف منطقة',
+  'user.create': 'إضافة مستخدم', 'user.update': 'تعديل مستخدم', 'user.password': 'تغيير كلمة مرور', 'user.delete': 'حذف مستخدم', undo: 'تراجع'
+};
+const ICONS = {
+  plus: 'M12 5v14M5 12h14', trash: 'M3 6h18M8 6V4h8v2M6 6l1 14h10l1-14M10 11v6M14 11v6',
+  pencil: 'M4 20l4-1 11-11-3-3L5 16l-1 4zM14 6l3 3', grip: 'M9 6h.01M9 12h.01M9 18h.01M15 6h.01M15 12h.01M15 18h.01',
+  up: 'M6 15l6-6 6 6', down: 'M6 9l6 6 6-6',
+  db: 'M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6',
+  logout: 'M9 21H5V3h4M16 17l5-5-5-5M21 12H9', printer: 'M6 9V3h12v6M6 18H4v-7h16v7h-2M7 14h10v7H7z',
+  building: 'M5 21V3h10v18M15 9h4v12M3 21h18M9 7h2M9 11h2M9 15h2',
+  pin: 'M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11zM12 12a2 2 0 100-4 2 2 0 000 4z',
+  history: 'M3 12a9 9 0 109-9 9 9 0 00-6.4 2.7L3 8M3 3v5h5M12 7v5l3 2',
+  key: 'M15 7a4 4 0 11-3.9 5L4 19v2h3v-2h2v-2h2l1.9-1.9A4 4 0 0115 7z', userplus: 'M15 21v-2a4 4 0 00-4-4H6a4 4 0 00-4 4v2M8.5 11a4 4 0 100-8 4 4 0 000 8zM19 8v6M22 11h-6',
+  x: 'M6 6l12 12M18 6L6 18', shield: 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z', undo: 'M9 14L4 9l5-5M4 9h10a6 6 0 010 12h-3',
+  refresh: 'M21 12a9 9 0 11-3-6.7L21 8M21 3v5h-5'
+};
+const icon = (n, s) => '<svg class="ic" width="' + (s || 18) + '" height="' + (s || 18) + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="' + ICONS[n] + '"/></svg>';
+const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const $ = (sel, root) => (root || document).querySelector(sel);
+const clone = (o) => JSON.parse(JSON.stringify(o));
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+/* ====================================================================
+   الحالة
+   ==================================================================== */
+const S = {
+  token: null, user: null, regions: [], hotels: [], saved: {}, savedOrder: [], savedData: {},
+  tab: 'hotels', region: 'all', rRegion: 'all', search: '', selected: null,
+  logs: { items: [], hasMore: false, loaded: false, offset: 0 }, users: null,
+  lastActive: Date.now()
+};
+const isAdmin = () => !!S.user && S.user.role === 'admin';
+const canEdit = () => !!S.user && (S.user.role === 'admin' || S.user.role === 'editor');
+
+/* ====================================================================
+   تنظيف بيانات الفندق (نفس منطق السيرفر) — لمعرفة هل في تعديل فعلي
+   ==================================================================== */
+function t1(v) { return String(v == null ? '' : v).replace(/[\r\n\t]+/g, ' ').replace(/\s{2,}/g, ' ').trim(); }
+function norm(d) {
+  d = d || {};
+  const rooms = [];
+  (d.rooms || []).forEach((r) => {
+    const periods = [];
+    (r.periods || []).forEach((p) => {
+      const q = { from: t1(p.from), to: t1(p.to), single: t1(p.single), double: t1(p.double), triple: t1(p.triple) };
+      if (q.from || q.to || q.single || q.double || q.triple) periods.push(q);
+    });
+    const room = { typeEn: t1(r.typeEn), typeAr: t1(r.typeAr), basis: t1(r.basis), periods: periods };
+    if (room.typeEn || room.typeAr || room.basis || periods.length) rooms.push(room);
+  });
+  const sections = [];
+  (d.sections || []).forEach((s) => {
+    const items = (s.items || []).map(t1).filter(Boolean);
+    const sec = { title: t1(s.title), items: items };
+    if (sec.title || items.length) sections.push(sec);
+  });
+  return {
+    nameEn: t1(d.nameEn), nameAr: t1(d.nameAr), subtitle: t1(d.subtitle),
+    stars: Math.max(0, Math.min(5, parseInt(d.stars, 10) || 0)),
+    bannerText: t1(d.bannerText), bannerColor: COLORS.some((c) => c[0] === d.bannerColor) ? d.bannerColor : 'sky',
+    caseByCase: d.caseByCase === true, caseByCaseText: t1(d.caseByCaseText), rooms: rooms, sections: sections
+  };
+}
+const sigOf = (h) => JSON.stringify([h.regionId, norm(h.data)]);
+const hname = (h) => { const d = norm(h.data); return d.nameEn || d.nameAr || ''; };
+
+function emptyPeriod() { return { from: '', to: '', single: '', double: '', triple: '' }; }
+function emptyRoom() { return { typeEn: '', typeAr: '', basis: '', periods: [emptyPeriod()] }; }
+function newHotelData() {
+  return {
+    nameEn: '', nameAr: '', subtitle: '', stars: 5, bannerText: '', bannerColor: 'sky',
+    caseByCase: false, caseByCaseText: 'Case By Case — السعر متغير حسب فترة الحجز',
+    rooms: [emptyRoom()], sections: [{ title: 'ملاحظات', items: [] }, { title: 'سياسة الإلغاء', items: [] }]
+  };
+}
+
+function applyServer(data) {
+  S.user = data.user;
+  S.regions = data.regions;
+  S.hotels = data.hotels.map((h) => ({ id: h.id, regionId: h.regionId, order: h.order, rev: h.rev, updatedAt: h.updatedAt, updatedBy: h.updatedBy, data: clone(h.data) }));
+  S.saved = {}; S.savedOrder = []; S.savedData = {};
+  S.hotels.forEach((h) => {
+    S.saved[h.id] = { rev: h.rev, sig: sigOf(h) };
+    S.savedData[h.id] = { regionId: h.regionId, data: clone(h.data) };
+    S.savedOrder.push(h.id);
+  });
+  if (S.region !== 'all' && !S.regions.some((r) => r.id === S.region)) S.region = 'all';
+  if (S.rRegion !== 'all' && !S.regions.some((r) => r.id === S.rRegion)) S.rRegion = 'all';
+  if (S.selected && !S.hotels.some((h) => h.id === S.selected)) S.selected = null;
+}
+
+function computePending() {
+  const cur = S.hotels, curIds = new Set(cur.map((h) => h.id));
+  const upserts = [], deletes = [];
+  cur.forEach((h) => {
+    if (h.isNew) upserts.push(h);
+    else if (S.saved[h.id] && sigOf(h) !== S.saved[h.id].sig) upserts.push(h);
+  });
+  S.savedOrder.forEach((id) => { if (!curIds.has(id)) deletes.push(id); });
+  const expected = S.savedOrder.filter((id) => curIds.has(id)).concat(cur.filter((h) => h.isNew).map((h) => h.id));
+  const reorder = expected.join('|') !== cur.map((h) => h.id).join('|');
+  return { upserts: upserts, deletes: deletes, reorder: reorder, count: upserts.length + deletes.length + (reorder ? 1 : 0) };
+}
+const isDirty = (h) => h.isNew || (S.saved[h.id] && sigOf(h) !== S.saved[h.id].sig);
+const regionName = (id) => { const r = S.regions.find((x) => x.id === id); return r ? r.name : ''; };
+const selectedHotel = () => S.hotels.find((h) => h.id === S.selected);
+
+/* ====================================================================
+   API
+   ==================================================================== */
+function apiErr(code, message, extra) { const e = new Error(message); e.code = code; e.extra = extra; return e; }
+
+async function api(action, params) {
+  if (!API_URL) throw apiErr('config', 'لسه ماحطيتش رابط الـ API في ملف config.js');
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 90000);
+  let res;
+  try {
+    res = await fetch(API_URL, {
+      method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, signal: ctrl.signal,
+      body: JSON.stringify(Object.assign({ action: action, token: S.token }, params || {}))
+    });
+  } catch (e) {
+    throw apiErr('network', 'تعذّر الاتصال بالسيرفر. اتأكد من النت وجرّب تاني');
+  } finally { clearTimeout(timer); }
+  let json;
+  try { json = await res.json(); } catch (e) { throw apiErr('network', 'رد غير متوقع من السيرفر. اتأكد من رابط الـ API ومن إن النشر Anyone'); }
+  if (!json.ok) {
+    if (json.error === 'auth') authLost(json.message);
+    throw apiErr(json.error, json.message, json);
+  }
+  return json;
+}
+
+let busyN = 0;
+function busy(on) {
+  busyN = Math.max(0, busyN + (on ? 1 : -1));
+  $('#busy').hidden = busyN === 0;
+}
+async function withBusy(fn) { busy(true); try { return await fn(); } finally { busy(false); } }
+
+function toast(msg, type) {
+  const el = document.createElement('div');
+  el.className = 'toast ' + (type || '');
+  el.textContent = msg;
+  $('#toasts').appendChild(el);
+  setTimeout(() => el.remove(), type === 'err' ? 6000 : 3200);
+}
+function fail(e) { if (e && e.code !== 'auth') toast(e.message || 'حصل خطأ', 'err'); }
+
+/* ====================================================================
+   الجلسة
+   ==================================================================== */
+function saveSession() { try { localStorage.setItem(LS_KEY, JSON.stringify({ token: S.token, last: S.lastActive })); } catch (e) { /* ignore */ } }
+function clearSession() { try { localStorage.removeItem(LS_KEY); } catch (e) { /* ignore */ } }
+
+function authLost(message) {
+  clearSession();
+  S.token = null; S.user = null;
+  closeModal();
+  renderLogin(message || 'انتهت الجلسة، سجّل الدخول من جديد');
+}
+
+function logout(msg) {
+  clearSession();
+  S.token = null; S.user = null; S.hotels = []; S.saved = {}; S.selected = null; S.users = null;
+  S.logs = { items: [], hasMore: false, loaded: false, offset: 0 };
+  closeModal();
+  renderLogin(msg || '');
+}
+
+function touch() {
+  const now = Date.now();
+  if (now - S.lastActive > 15000) { S.lastActive = now; if (S.token) saveSession(); } else S.lastActive = now;
+}
+['mousemove', 'keydown', 'click', 'touchstart'].forEach((ev) => document.addEventListener(ev, touch, { passive: true }));
+setInterval(() => {
+  if (S.token && Date.now() - S.lastActive > IDLE_MS && computePending().count === 0) logout('تم تسجيل خروجك تلقائيًا بسبب عدم النشاط');
+}, 30000);
+window.addEventListener('beforeunload', (e) => {
+  if (S.token && computePending().count > 0) { e.preventDefault(); e.returnValue = ''; }
+});
+
+function defaultTab() { return S.user.role === 'viewer' ? 'reports' : 'hotels'; }
+function visibleTabs() {
+  const t = [];
+  if (canEdit()) t.push({ id: 'hotels', label: 'فنادق' });
+  t.push({ id: 'reports', label: 'تقارير' });
+  if (isAdmin()) { t.push({ id: 'logs', label: 'السجل' }); t.push({ id: 'users', label: 'مستخدمين' }); }
+  return t;
+}
+
+/* ====================================================================
+   شاشة الدخول
+   ==================================================================== */
+function renderLogin(message) {
+  $('#app').innerHTML =
+    '<div class="login-wrap"><form class="login-card" id="loginForm" autocomplete="on">' +
+    '<div class="logo">HR</div><h1>إدارة فنادق وتقارير</h1><div class="sub">سجّل دخولك للمتابعة</div>' +
+    (!API_URL ? '<div class="infobox">لسه ماحطيتش رابط الـ API في ملف <b dir="ltr">config.js</b></div>' : '') +
+    (message ? '<div class="errbox" id="loginErr">' + esc(message) + '</div>' : '<div class="errbox" id="loginErr" hidden></div>') +
+    '<label class="f"><span>اسم المستخدم</span><input id="lu" name="username" autocomplete="username" autocapitalize="off" spellcheck="false" dir="ltr" required></label>' +
+    '<label class="f"><span>كلمة المرور</span><input id="lp" name="password" type="password" autocomplete="current-password" dir="ltr" required></label>' +
+    '<button class="btn-dark" type="submit">دخول</button></form></div>';
+  $('#loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const err = $('#loginErr');
+    err.hidden = true;
+    try {
+      const r = await withBusy(() => api('login', { username: $('#lu').value.trim(), password: $('#lp').value }));
+      S.token = r.token; S.lastActive = Date.now(); saveSession();
+      applyServer(r.data);
+      S.tab = defaultTab(); S.region = 'all'; S.rRegion = 'all'; S.selected = null; S.users = null;
+      S.logs = { items: [], hasMore: false, loaded: false, offset: 0 };
+      render();
+    } catch (ex) { err.textContent = ex.message; err.hidden = false; }
+  });
+  const u = $('#lu'); if (u) u.focus();
+}
+
+/* ====================================================================
+   الهيكل العام
+   ==================================================================== */
+function render() {
+  if (!S.user) return renderLogin();
+  if (!visibleTabs().some((t) => t.id === S.tab)) S.tab = defaultTab();
+  const u = S.user, tabs = visibleTabs(), p = computePending();
+  $('#app').innerHTML =
+    '<div class="shell"><header class="hdr noprint">' +
+    '<div class="brand"><div class="logo">HR</div><h1>إدارة فنادق وتقارير</h1></div>' +
+    '<nav class="tabs">' + tabs.map((t) => '<button class="tab' + (S.tab === t.id ? ' on' : '') + '" data-act="tab" data-tab="' + t.id + '">' + t.label + '</button>').join('') + '</nav>' +
+    '<div class="tools">' +
+    '<div class="who"><span class="who-n" dir="ltr">' + esc(u.username) + '</span><span class="role r-' + u.role + '">' + ROLE_AR[u.role] + '</span></div>' +
+    (canEdit() ? '<button id="saveBtn" class="btn-save" data-act="saveAll"' + (p.count ? '' : ' disabled') + '>' + icon('db') + '<span>حفظ في قاعدة البيانات</span><b class="cnt">' + (p.count || '') + '</b></button>' : '') +
+    '<button class="btn-out" data-act="logout">' + icon('logout') + '<span>خروج</span></button>' +
+    '</div></header><main id="view"></main></div>';
+  renderView();
+}
+
+function renderView() {
+  if (S.tab === 'hotels') viewHotels();
+  else if (S.tab === 'reports') viewReports();
+  else if (S.tab === 'logs') viewLogs();
+  else if (S.tab === 'users') viewUsers();
+}
+
+function updateSaveBtn() {
+  const b = $('#saveBtn'); if (!b) return;
+  const n = computePending().count;
+  b.disabled = n === 0;
+  $('.cnt', b).textContent = n || '';
+}
+
+/* ====================================================================
+   شاشة الفنادق
+   ==================================================================== */
+function visibleHotels() {
+  const q = S.search.trim().toLowerCase();
+  return S.hotels.filter((h) => {
+    if (S.region !== 'all' && h.regionId !== S.region) return false;
+    if (!q) return true;
+    const d = h.data || {};
+    return [d.nameEn, d.nameAr, d.subtitle].some((x) => String(x || '').toLowerCase().indexOf(q) >= 0);
+  });
+}
+
+function viewHotels() {
+  $('#view').innerHTML =
+    '<div class="regionbar"><div class="rb-title">' + icon('pin') + ' المناطق</div><div class="chips" id="chips"></div>' +
+    (isAdmin() ? '<button class="btn-ghost" data-act="manageRegions">' + icon('pencil', 15) + ' إدارة المناطق</button>' : '') + '</div>' +
+    '<div class="hgrid"><aside class="lpane"><div class="lp-head"><h2>' + icon('building') + '<span id="lpTitle"></span></h2>' +
+    '<button class="btn-dark" data-act="newHotel">' + icon('plus', 16) + ' فندق جديد</button></div>' +
+    '<input class="inp" id="hsearch" placeholder="بحث باسم الفندق..." value="' + esc(S.search) + '"><div class="hlist" id="hlist"></div></aside>' +
+    '<section class="epane" id="editor"></section></div>';
+  renderChips(); renderList(); renderEditor();
+}
+
+function renderChips() {
+  const el = $('#chips'); if (!el) return;
+  const count = (id) => S.hotels.filter((h) => id === 'all' || h.regionId === id).length;
+  el.innerHTML = [{ id: 'all', name: 'الكل' }].concat(S.regions).map((r) =>
+    '<button class="chip' + (S.region === r.id ? ' on' : '') + '" data-act="chip" data-id="' + esc(r.id) + '">' + esc(r.name) + '<span class="n">' + count(r.id) + '</span></button>').join('');
+  const t = $('#lpTitle');
+  if (t) t.textContent = S.region === 'all' ? 'قائمة الفنادق' : 'فنادق ' + regionName(S.region);
+}
+
+function cardHtml(h, i, n) {
+  const d = norm(h.data), dirty = isDirty(h);
+  const title = d.nameEn || d.nameAr || 'فندق جديد';
+  const sub = d.nameEn ? d.nameAr : '';
+  return '<div class="hcard' + (S.selected === h.id ? ' sel' : '') + '" draggable="true" data-act="select" data-id="' + esc(h.id) + '">' +
+    '<span class="grip" title="اسحب لتغيير الترتيب">' + icon('grip') + '</span>' +
+    '<div class="hc-main"><div class="hc-name" dir="auto">' + esc(title) + '</div>' + (sub ? '<div class="hc-ar">' + esc(sub) + '</div>' : '') +
+    '<div class="hc-meta"><span class="stars">' + '★'.repeat(d.stars) + '</span>' +
+    (d.caseByCase ? '<span class="badge gray">Case by Case</span>' : '') +
+    (S.region === 'all' && regionName(h.regionId) ? '<span class="badge sky">' + esc(regionName(h.regionId)) + '</span>' : '') +
+    (h.isNew ? '<span class="badge green">جديد</span>' : dirty ? '<span class="badge amber">غير محفوظ</span>' : '') + '</div></div>' +
+    '<div class="hc-tools"><button class="icon-btn" data-act="moveUp" data-id="' + esc(h.id) + '" title="للأعلى"' + (i === 0 ? ' disabled' : '') + '>' + icon('up', 16) + '</button>' +
+    '<button class="icon-btn" data-act="moveDown" data-id="' + esc(h.id) + '" title="للأسفل"' + (i === n - 1 ? ' disabled' : '') + '>' + icon('down', 16) + '</button>' +
+    '<span class="icon-btn">' + icon('pencil', 16) + '</span></div></div>';
+}
+
+function renderList() {
+  const el = $('#hlist'); if (!el) return;
+  const vis = visibleHotels();
+  el.innerHTML = vis.length ? vis.map((h, i) => cardHtml(h, i, vis.length)).join('')
+    : '<div class="empty-sm">' + (S.search ? 'مفيش نتائج للبحث' : 'مفيش فنادق هنا لسه. اضغط «فندق جديد» للبدء.') + '</div>';
+}
+
+let rafPending = false;
+function refreshChrome() {
+  if (rafPending) return;
+  rafPending = true;
+  requestAnimationFrame(() => {
+    rafPending = false;
+    renderList(); renderChips(); updateSaveBtn();
+    const h = selectedHotel(), t = $('#edTitle');
+    if (h && t) t.textContent = hname(h) || 'فندق جديد';
+  });
+}
+
+function fld(label, path, val, o) {
+  o = o || {};
+  return '<label class="f ' + (o.cls || '') + '"><span>' + label + '</span><input data-bind="' + path + '" value="' + esc(val) + '"' +
+    (o.type ? ' type="' + o.type + '"' : '') + (o.max ? ' maxlength="' + o.max + '"' : '') + (o.dir ? ' dir="' + o.dir + '"' : '') +
+    (o.ph ? ' placeholder="' + esc(o.ph) + '"' : '') + (o.list ? ' list="' + o.list + '"' : '') + (o.dis ? ' disabled' : '') + '></label>';
+}
+
+function editorHtml(h) {
+  const d = h.data;
+  d.rooms = d.rooms || []; d.sections = d.sections || [];
+  const regionOpts = S.regions.map((r) => '<option value="' + esc(r.id) + '"' + (r.id === h.regionId ? ' selected' : '') + '>' + esc(r.name) + '</option>').join('');
+  const starOpts = [5, 4, 3, 2, 1, 0].map((n) => '<option value="' + n + '"' + (Number(d.stars) === n ? ' selected' : '') + '>' + (n ? n + ' ★' : 'بدون') + '</option>').join('');
+  const colorOpts = COLORS.map((c) => '<option value="' + c[0] + '"' + (d.bannerColor === c[0] ? ' selected' : '') + '>' + c[1] + '</option>').join('');
+
+  let html = '<div class="ed-head"><h3 id="edTitle" dir="auto">' + esc(hname(h) || 'فندق جديد') + '</h3><div class="ed-actions">' +
+    '<button class="btn-ghost" data-act="revertHotel">' + (h.isNew ? 'إلغاء الفندق الجديد' : 'تراجع عن تعديلات هذا الفندق') + '</button>' +
+    '<button class="btn-danger" data-act="delHotel">' + icon('trash', 15) + ' حذف الفندق</button></div></div>';
+  if (!h.isNew && h.updatedBy) html += '<div class="meta-line">آخر تعديل محفوظ بواسطة <b dir="ltr">' + esc(h.updatedBy) + '</b></div>';
+
+  html += '<div class="ecard"><h4>بيانات الفندق</h4><div class="grid2">' +
+    fld('اسم الفندق (English)', 'data.nameEn', d.nameEn, { max: 150, dir: 'ltr', ph: 'Regency Plaza Aqua Park 5*' }) +
+    fld('اسم الفندق (عربي)', 'data.nameAr', d.nameAr, { max: 150 }) +
+    fld('الوصف تحت الاسم (عربي)', 'data.subtitle', d.subtitle, { max: 200, ph: 'ستاندرد أكوا بارك 5 نجوم', cls: '' }) +
+    '<label class="f"><span>المنطقة</span><select data-bind="regionId"><option value="">— اختر المنطقة —</option>' + regionOpts + '</select></label>' +
+    '<label class="f"><span>التقييم بالنجوم</span><select data-bind="data.stars" data-type="int">' + starOpts + '</select></label><div></div>' +
+    fld('شريط التصنيف (اتركه فاضي لو مش محتاجه)', 'data.bannerText', d.bannerText, { max: 80, dir: 'auto', ph: 'FAMILIES ONLY' }) +
+    '<label class="f"><span>لون الشريط</span><select data-bind="data.bannerColor">' + colorOpts + '</select></label></div>' +
+    '<label class="chk"><input type="checkbox" data-bind="data.caseByCase"' + (d.caseByCase ? ' checked' : '') + '> السعر Case By Case (بدون جدول أسعار في التقرير)</label>' +
+    fld('النص اللي يظهر بدل الجدول', 'data.caseByCaseText', d.caseByCaseText, { max: 150, dir: 'auto', dis: !d.caseByCase }) + '</div>';
+
+  html += '<div class="ecard"><h4><span>الغرف والأسعار</span><button class="btn-light" data-act="addRoom">' + icon('plus', 15) + ' نوع غرفة</button></h4>' +
+    '<datalist id="basisList">' + BASIS.map((b) => '<option value="' + b + '">').join('') + '</datalist>';
+  if (d.caseByCase) html += '<div class="infobox">الجدول مخفي في التقرير لأن الفندق Case By Case، لكن بياناته محفوظة.</div>';
+  d.rooms.forEach((r, ri) => {
+    r.periods = r.periods || [];
+    html += '<div class="room"><div class="room-head"><span>نوع الغرفة ' + (ri + 1) + '</span><button class="icon-btn danger" data-act="delRoom" data-ri="' + ri + '" title="حذف نوع الغرفة">' + icon('trash', 16) + '</button></div>' +
+      '<div class="grid3">' + fld('Type of Room', 'data.rooms.' + ri + '.typeEn', r.typeEn, { max: 100, dir: 'ltr', ph: 'Standard Room' }) +
+      fld('نوع الغرفة (عربي)', 'data.rooms.' + ri + '.typeAr', r.typeAr, { max: 100 }) +
+      fld('Basis', 'data.rooms.' + ri + '.basis', r.basis, { max: 100, dir: 'ltr', list: 'basisList', ph: 'Soft All Inclusive' }) + '</div>' +
+      '<table class="ptable"><thead><tr><th>من</th><th>إلى</th><th>Single</th><th>Double P/P</th><th>Triple P/P</th><th></th></tr></thead><tbody>';
+    r.periods.forEach((p, pi) => {
+      const b = 'data.rooms.' + ri + '.periods.' + pi + '.';
+      html += '<tr><td><input class="inp" type="date" dir="ltr" data-bind="' + b + 'from" value="' + esc(p.from) + '"></td>' +
+        '<td><input class="inp" type="date" dir="ltr" data-bind="' + b + 'to" value="' + esc(p.to) + '"></td>' +
+        '<td><input class="inp" dir="ltr" maxlength="30" data-bind="' + b + 'single" value="' + esc(p.single) + '"></td>' +
+        '<td><input class="inp" dir="ltr" maxlength="30" data-bind="' + b + 'double" value="' + esc(p.double) + '"></td>' +
+        '<td><input class="inp" dir="ltr" maxlength="30" data-bind="' + b + 'triple" value="' + esc(p.triple) + '"></td>' +
+        '<td><button class="icon-btn danger" data-act="delPeriod" data-ri="' + ri + '" data-pi="' + pi + '" title="حذف الفترة">' + icon('x', 15) + '</button></td></tr>';
+    });
+    html += '</tbody></table><button class="btn-light" data-act="addPeriod" data-ri="' + ri + '">' + icon('plus', 14) + ' فترة / تواريخ</button></div>';
+  });
+  if (!d.rooms.length) html += '<div class="empty-sm">مفيش أنواع غرف. اضغط «نوع غرفة» للإضافة.</div>';
+  html += '</div>';
+
+  html += '<div class="ecard"><h4><span>الخانات الإضافية (ملاحظات، سياسة الإلغاء، ...)</span><button class="btn-light" data-act="addSection">' + icon('plus', 15) + ' إضافة خانة</button></h4>';
+  d.sections.forEach((s, si) => {
+    html += '<div class="sec"><div class="sec-top"><input class="inp" data-bind="data.sections.' + si + '.title" value="' + esc(s.title) + '" maxlength="80" placeholder="عنوان الخانة (مثال: ملاحظات)">' +
+      '<button class="icon-btn danger" data-act="delSection" data-si="' + si + '" title="حذف الخانة">' + icon('trash', 16) + '</button></div>' +
+      '<textarea class="inp" data-bind="data.sections.' + si + '.items" data-type="lines" placeholder="اكتب كل نقطة في سطر مستقل">' + esc((s.items || []).join('\n')) + '</textarea></div>';
+  });
+  if (!d.sections.length) html += '<div class="empty-sm">مفيش خانات إضافية.</div>';
+  html += '</div>';
+  return html;
+}
+
+function renderEditor() {
+  const el = $('#editor'); if (!el) return;
+  const h = selectedHotel();
+  el.innerHTML = h ? editorHtml(h) : '<div class="placeholder">اختر فندقاً من القائمة أو أضف فندقاً جديداً للبدء.</div>';
+}
+
+function setPath(obj, path, val) {
+  const parts = path.split('.');
+  let o = obj;
+  for (let i = 0; i < parts.length - 1; i++) o = o[parts[i]];
+  o[parts[parts.length - 1]] = val;
+}
+
+function onBind(e) {
+  const t = e.target, path = t.getAttribute && t.getAttribute('data-bind');
+  if (!path) return;
+  const h = selectedHotel(); if (!h) return;
+  let v = t.type === 'checkbox' ? t.checked : t.value;
+  if (t.dataset.type === 'int') v = parseInt(v, 10) || 0;
+  if (t.dataset.type === 'lines') v = String(v).split('\n');
+  setPath(h, path, v);
+  if (path === 'data.caseByCase') { renderEditor(); }
+  refreshChrome();
+}
+document.addEventListener('input', onBind);
+document.addEventListener('change', onBind);
+document.addEventListener('input', (e) => {
+  if (e.target.id === 'hsearch') { S.search = e.target.value; renderList(); }
+});
+
+function newHotel() {
+  if (!S.regions.length) return toast('لازم المدير يضيف منطقة واحدة على الأقل الأول (من «إدارة المناطق»)', 'err');
+  const regionId = S.region !== 'all' ? S.region : S.regions[0].id;
+  const h = { id: 'tmp_' + uid(), isNew: true, regionId: regionId, order: 0, rev: 0, data: newHotelData() };
+  S.hotels.push(h);
+  S.selected = h.id;
+  S.search = '';
+  const s = $('#hsearch'); if (s) s.value = '';
+  renderChips(); renderList(); renderEditor(); updateSaveBtn();
+  const first = $('#editor [data-bind="data.nameEn"]'); if (first) first.focus();
+}
+
+function removeHotelLocal(id) {
+  S.hotels = S.hotels.filter((h) => h.id !== id);
+  if (S.selected === id) S.selected = null;
+}
+
+function reorderVisible(ids) {
+  const vis = new Set(ids), pos = [];
+  S.hotels.forEach((h, i) => { if (vis.has(h.id)) pos.push(i); });
+  const by = {}; S.hotels.forEach((h) => { by[h.id] = h; });
+  ids.forEach((id, k) => { S.hotels[pos[k]] = by[id]; });
+}
+function moveStep(id, dir) {
+  const ids = visibleHotels().map((h) => h.id), i = ids.indexOf(id), j = i + dir;
+  if (i < 0 || j < 0 || j >= ids.length) return;
+  ids.splice(i, 1); ids.splice(j, 0, id);
+  reorderVisible(ids);
+  renderList(); updateSaveBtn();
+}
+function moveTo(dragId, targetId, after) {
+  const ids = visibleHotels().map((h) => h.id).filter((x) => x !== dragId);
+  const k = ids.indexOf(targetId);
+  if (k < 0) return;
+  ids.splice(k + (after ? 1 : 0), 0, dragId);
+  reorderVisible(ids);
+  renderList(); updateSaveBtn();
+}
+
+let dragId = null;
+function clearDrop() { document.querySelectorAll('.drop-before,.drop-after,.dragging').forEach((el) => el.classList.remove('drop-before', 'drop-after', 'dragging')); }
+document.addEventListener('dragstart', (e) => {
+  const c = e.target.closest && e.target.closest('.hcard'); if (!c) return;
+  dragId = c.dataset.id;
+  e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', dragId);
+  setTimeout(() => c.classList.add('dragging'), 0);
+});
+document.addEventListener('dragover', (e) => {
+  if (!dragId) return;
+  const c = e.target.closest && e.target.closest('.hcard'); if (!c) return;
+  e.preventDefault();
+  document.querySelectorAll('.drop-before,.drop-after').forEach((el) => el.classList.remove('drop-before', 'drop-after'));
+  if (c.dataset.id !== dragId) { const r = c.getBoundingClientRect(); c.classList.add(e.clientY > r.top + r.height / 2 ? 'drop-after' : 'drop-before'); }
+});
+document.addEventListener('drop', (e) => {
+  if (!dragId) return;
+  const c = e.target.closest && e.target.closest('.hcard');
+  if (c && c.dataset.id !== dragId) { e.preventDefault(); const r = c.getBoundingClientRect(); moveTo(dragId, c.dataset.id, e.clientY > r.top + r.height / 2); }
+  dragId = null; clearDrop();
+});
+document.addEventListener('dragend', () => { dragId = null; clearDrop(); });
+
+/* ---------- الحفظ في قاعدة البيانات ---------- */
+async function saveAll() {
+  const p = computePending();
+  if (!p.count) return;
+  for (const h of p.upserts) {
+    const d = norm(h.data);
+    if (!d.nameEn && !d.nameAr) { S.tab = 'hotels'; S.selected = h.id; render(); return toast('اكتب اسم الفندق قبل الحفظ', 'err'); }
+    if (!h.regionId) { S.tab = 'hotels'; S.selected = h.id; render(); return toast('اختر منطقة الفندق «' + (d.nameEn || d.nameAr) + '» قبل الحفظ', 'err'); }
+  }
+  const ops = [];
+  p.upserts.forEach((h) => ops.push(h.isNew
+    ? { type: 'hotel.upsert', tempId: h.id, regionId: h.regionId, data: h.data }
+    : { type: 'hotel.upsert', id: h.id, baseRev: S.saved[h.id].rev, regionId: h.regionId, data: h.data }));
+  p.deletes.forEach((id) => ops.push({ type: 'hotel.delete', id: id, baseRev: S.saved[id].rev }));
+  if (p.reorder) ops.push({ type: 'hotel.reorder', ids: S.hotels.map((h) => h.id) });
+
+  let r;
+  try { r = await withBusy(() => api('saveBatch', { ops: ops })); } catch (e) { return fail(e); }
+
+  const keep = [], msgs = [], idMap = {};
+  let okCount = 0;
+  r.results.forEach((res, i) => {
+    const op = ops[i];
+    if (res.ok) { if (!res.unchanged) okCount++; if (res.tempId && res.id) idMap[res.tempId] = res.id; return; }
+    msgs.push(res.message || 'تعذّر تنفيذ عملية');
+    if (op.type === 'hotel.upsert') {
+      const h = p.upserts.find((x) => (op.id ? x.id === op.id : x.id === op.tempId));
+      if (h) keep.push({ h: h, code: res.code });
+    }
+  });
+  const oldSel = S.selected;
+  applyServer(r.data);
+  keep.forEach((k) => {
+    const cur = S.hotels.find((x) => x.id === k.h.id);
+    if (!k.h.isNew && cur && k.code !== 'gone') { cur.regionId = k.h.regionId; cur.data = k.h.data; }
+    else S.hotels.push({ id: k.h.isNew ? k.h.id : 'tmp_' + uid(), isNew: true, regionId: k.h.regionId, order: 0, rev: 0, data: k.h.data });
+  });
+  const sel = idMap[oldSel] || oldSel;
+  S.selected = S.hotels.some((h) => h.id === sel) ? sel : null;
+  render();
+  if (msgs.length) alertBox('تم حفظ ' + okCount + ' تعديل، وفيه عمليات ماتحفظتش', msgs, 'التعديلات اللي ماتحفظتش لسه ظاهرة عندك كمسودة، راجعها واضغط «حفظ في قاعدة البيانات» تاني.');
+  else toast(okCount ? 'تم الحفظ في قاعدة البيانات ✓' : 'مفيش تغييرات جديدة للحفظ', okCount ? 'ok' : '');
+}
+
+/* ====================================================================
+   التقارير
+   ==================================================================== */
+const fmtDate = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s || ''); return m ? m[3] + '/' + m[2] + '/' + m[1] : ''; };
+const dash = '—';
+
+function hotelReportHtml(h) {
+  const d = norm(h.data);
+  const main = d.nameEn || d.nameAr, left = d.nameEn ? d.nameAr : '';
+  let html = '<article class="hr" data-id="' + esc(h.id) + '">';
+  if (d.bannerText) html += '<div class="hr-banner c-' + d.bannerColor + '" dir="auto">' + esc(d.bannerText) + '</div>';
+  html += '<header class="hr-head"><div><div class="hr-en" dir="auto">' + esc(main) + '</div>' + (d.subtitle ? '<div class="hr-sub">' + esc(d.subtitle) + '</div>' : '') +
+    '</div>' + (left ? '<div class="hr-ar">' + esc(left) + '</div>' : '') + '</header><div class="hr-body">';
+  if (d.caseByCase) {
+    html += '<div class="hr-cbc" dir="auto">' + esc(d.caseByCaseText || 'Case By Case') + '</div>';
+  } else if (d.rooms.length) {
+    html += '<table class="rt"><thead><tr><th>Type of Room</th><th>Basis</th><th>Dates</th><th>Single</th><th>Double P/P</th><th>Triple P/P</th></tr></thead><tbody>';
+    d.rooms.forEach((r) => {
+      const per = r.periods.length ? r.periods : [{ from: '', to: '', single: '', double: '', triple: '' }];
+      per.forEach((p, i) => {
+        html += '<tr>';
+        if (i === 0) {
+          html += '<td rowspan="' + per.length + '"><div class="t-en" dir="auto">' + esc(r.typeEn || r.typeAr) + '</div>' + (r.typeEn && r.typeAr ? '<div class="t-ar">' + esc(r.typeAr) + '</div>' : '') + '</td>' +
+            '<td rowspan="' + per.length + '" class="c" dir="auto">' + esc(r.basis || dash) + '</td>';
+        }
+        const dates = p.from && p.to ? fmtDate(p.from) + ' – ' + fmtDate(p.to) : fmtDate(p.from || p.to);
+        html += '<td class="c" dir="ltr">' + esc(dates || dash) + '</td><td class="c" dir="auto">' + esc(p.single || dash) + '</td><td class="c" dir="auto">' + esc(p.double || dash) + '</td><td class="c" dir="auto">' + esc(p.triple || dash) + '</td></tr>';
+      });
+    });
+    html += '</tbody></table>';
+  }
+  d.sections.forEach((s, i) => {
+    html += '<div class="hr-sec s' + (i % 5) + '">' + (s.title ? '<h4>' + esc(/[:：]$/.test(s.title) ? s.title : s.title + ':') + '</h4>' : '') +
+      '<ul>' + s.items.map((x) => '<li dir="auto">' + esc(x) + '</li>').join('') + '</ul></div>';
+  });
+  return html + '</div></article>';
+}
+
+function reportHotels() {
+  return S.hotels.filter((h) => (S.rRegion === 'all' || h.regionId === S.rRegion) && hname(h));
+}
+
+function viewReports() {
+  const hs = reportHotels(), p = computePending();
+  const chips = [{ id: 'all', name: 'كل المناطق' }].concat(S.regions).map((r) =>
+    '<button class="chip' + (S.rRegion === r.id ? ' on' : '') + '" data-act="rchip" data-id="' + esc(r.id) + '">' + esc(r.name) + '</button>').join('');
+  $('#view').innerHTML = '<div class="report-view">' +
+    '<div class="rtop noprint"><h2>' + icon('building') + ' التقرير النهائي <span class="badge gray">' + hs.length + ' فندق</span></h2>' +
+    '<button class="btn-dark" data-act="print">' + icon('printer', 16) + ' طباعة / تصدير PDF</button></div>' +
+    '<div class="rfilter noprint"><b>' + icon('pin', 16) + ' تصفية حسب المنطقة</b><div class="chips">' + chips + '</div></div>' +
+    (canEdit() && p.count ? '<div class="pendnote noprint">فيه ' + p.count + ' تعديل غير محفوظ، وهو ظاهر في التقرير ده. احفظه الأول لو عايز النسخة المعتمدة.</div>' : '') +
+    '<div class="report-area"><div class="sheet" id="sheet">' +
+    (hs.length ? hs.map(hotelReportHtml).join('') : '<div class="empty-big">مفيش فنادق لعرضها</div>') + '</div></div></div>';
+  fitReport();
+}
+
+// فندق أطول من صفحة A4 كاملة مينفعش يتقسم، فبنصغّره بالقدر اللازم ليدخل في صفحة واحدة
+// (بنقيس الارتفاع الفعلي بعد التصغير ونكرر لحد ما يدخل، لأن شكل الصف بيتغيّر مع التصغير)
+function fitReport() {
+  const els = Array.from(document.querySelectorAll('.hr'));
+  els.forEach((el) => { el.style.zoom = ''; });
+  const MAX = 1000; // px ≈ 265mm من ارتفاع 277mm المتاح في A4
+  els.forEach((el) => {
+    let h = el.getBoundingClientRect().height;
+    if (h <= MAX) return;
+    let z = MAX / h;
+    for (let i = 0; i < 8; i++) {
+      el.style.zoom = z.toFixed(4);
+      h = el.getBoundingClientRect().height;
+      if (h <= MAX) break;
+      z = z * (MAX / h) * 0.97;
+    }
+  });
+}
+window.addEventListener('beforeprint', fitReport);
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { if (S.tab === 'reports') fitReport(); });
+
+/* ====================================================================
+   السجل
+   ==================================================================== */
+const fmtTs = (iso) => {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleDateString('en-GB') + ' ' + d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+};
+
+async function loadLogs(reset) {
+  if (reset) S.logs = { items: [], hasMore: false, loaded: false, offset: 0 };
+  try {
+    const r = await withBusy(() => api('listLogs', { limit: 100, offset: S.logs.offset }));
+    S.logs.items = S.logs.items.concat(r.logs); S.logs.hasMore = r.hasMore; S.logs.offset += r.logs.length; S.logs.loaded = true;
+  } catch (e) { fail(e); }
+  if (S.user && S.tab === 'logs') viewLogs();
+}
+
+function viewLogs() {
+  if (!S.logs.loaded) { $('#view').innerHTML = '<div class="page-pad"><div class="empty-big">جاري التحميل...</div></div>'; loadLogs(false); return; }
+  const rows = S.logs.items.map((l) => {
+    let act;
+    if (l.undone) act = '<span class="badge gray">تم التراجع</span>';
+    else if (l.undoable) act = '<button class="btn-light" data-act="undo" data-id="' + esc(l.id) + '">' + icon('undo', 14) + ' تراجع</button>';
+    else act = '<span class="muted" title="' + esc(l.undoReason || '') + '">—</span>';
+    return '<tr><td class="small" dir="ltr" style="text-align:right;white-space:nowrap">' + esc(fmtTs(l.ts)) + '</td><td dir="ltr" style="text-align:right">' + esc(l.username) + '</td>' +
+      '<td><span class="badge' + (l.action.indexOf('delete') > 0 ? ' red' : l.action === 'login' ? '' : l.action === 'undo' ? ' gray' : ' sky') + '">' + esc(ACTION_AR[l.action] || l.action) + '</span></td>' +
+      '<td>' + esc(l.summary) + (l.undoReason && !l.undoable && !l.undone && l.undoReason ? '<div class="small muted">' + esc(l.undoReason) + '</div>' : '') + '</td><td>' + act + '</td></tr>';
+  }).join('');
+  $('#view').innerHTML = '<div class="page-pad"><div class="page-head"><h2>' + icon('history') + ' سجل الأحداث</h2>' +
+    '<button class="btn-ghost" data-act="refreshLogs">' + icon('refresh', 15) + ' تحديث</button></div>' +
+    '<div class="card"><table class="tbl"><thead><tr><th>التاريخ</th><th>المستخدم</th><th>الإجراء</th><th>التفاصيل</th><th>تراجع</th></tr></thead><tbody>' +
+    (rows || '<tr><td colspan="5" class="empty-sm">السجل فاضي</td></tr>') + '</tbody></table></div>' +
+    (S.logs.hasMore ? '<div style="text-align:center;margin-top:14px"><button class="btn-ghost" data-act="moreLogs">عرض الأقدم</button></div>' : '') +
+    '<div class="hint">كل إضافة أو تعديل أو حذف للفنادق والمناطق بتتسجل هنا، وتقدر ترجّعها بزر «تراجع». التراجع متاح بس لو الفندق لسه على الحالة اللي العملية سابته عليها.</div></div>';
+}
+
+async function undoLog(id) {
+  if (computePending().count) return toast('فيه تعديلات غير محفوظة. احفظها أو ألغِها قبل التراجع', 'err');
+  const l = S.logs.items.find((x) => x.id === id);
+  if (!l || !confirm('تأكيد التراجع عن:\n' + l.summary)) return;
+  try {
+    const r = await withBusy(() => api('undoLog', { logId: id }));
+    applyServer(r.data);
+    toast('تم التراجع ✓', 'ok');
+  } catch (e) { fail(e); }
+  S.logs = { items: [], hasMore: false, loaded: false, offset: 0 };
+  render();
+}
+
+/* ====================================================================
+   المستخدمين
+   ==================================================================== */
+const regionsLabel = (rg) => rg === '*' ? 'كل المناطق' : (rg || []).map(regionName).filter(Boolean).join('، ') || '—';
+
+async function loadUsers() {
+  try { const r = await withBusy(() => api('listUsers')); S.users = r.users; } catch (e) { fail(e); S.users = S.users || []; }
+  if (S.user && S.tab === 'users') viewUsers();
+}
+
+function viewUsers() {
+  if (!S.users) { $('#view').innerHTML = '<div class="page-pad"><div class="empty-big">جاري التحميل...</div></div>'; loadUsers(); return; }
+  const me = S.user.id;
+  const rows = S.users.map((u) => '<tr><td><b dir="ltr">' + esc(u.username) + '</b>' + (u.id === me ? ' <span class="muted small">(أنت)</span>' : '') + '</td>' +
+    '<td><span class="badge ' + (u.role === 'admin' ? 'amber' : u.role === 'editor' ? 'sky' : 'gray') + '">' + ROLE_AR[u.role] + '</span></td>' +
+    '<td>' + esc(u.role === 'admin' ? 'كل المناطق' : regionsLabel(u.regions)) + '</td>' +
+    '<td>' + (u.active ? '<span class="badge green">فعّال</span>' : '<span class="badge red">معطّل</span>') + '</td>' +
+    '<td><button class="icon-btn" data-act="pwdUser" data-id="' + esc(u.id) + '" title="تغيير كلمة المرور">' + icon('key', 17) + '</button>' +
+    '<button class="icon-btn" data-act="editUser" data-id="' + esc(u.id) + '" title="تعديل الدور والمناطق">' + icon('pencil', 17) + '</button>' +
+    '<button class="icon-btn danger" data-act="delUser" data-id="' + esc(u.id) + '" title="حذف"' + (u.id === me ? ' disabled' : '') + '>' + icon('trash', 17) + '</button></td></tr>').join('');
+  $('#view').innerHTML = '<div class="page-pad"><div class="page-head"><h2>' + icon('shield') + ' إدارة المستخدمين</h2>' +
+    '<button class="btn-dark" data-act="newUser">' + icon('userplus', 16) + ' مستخدم جديد</button></div>' +
+    '<div class="card"><table class="tbl"><thead><tr><th>المستخدم</th><th>الدور</th><th>المناطق</th><th>الحالة</th><th>إجراءات</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+    '<div class="hint"><b>مدير:</b> كل الصلاحيات (فنادق، تقارير، سجل، مستخدمين). <b>محرر:</b> يضيف ويعدّل ويحذف الفنادق في المناطق المحددة له ويشوف التقارير. <b>مشاهد:</b> يشوف التقارير ويطبعها فقط، في المناطق المحددة له.</div></div>';
+}
+
+function regionBoxHtml(u) {
+  const all = !u || u.regions === '*';
+  const sel = all ? [] : u.regions;
+  return '<div class="rgn-box" id="rgnBox"><label class="chk"><input type="checkbox" id="rgnAll"' + (all ? ' checked' : '') + '> كل المناطق (بما فيها اللي هتتضاف بعدين)</label><hr>' +
+    S.regions.map((r) => '<label class="chk"><input type="checkbox" class="rgnOne" value="' + esc(r.id) + '"' + (sel.indexOf(r.id) >= 0 ? ' checked' : '') + (all ? ' disabled' : '') + '> ' + esc(r.name) + '</label>').join('') + '</div>';
+}
+
+function userModal(u) {
+  const isNewU = !u;
+  const roles = ['admin', 'editor', 'viewer'].map((r) => '<option value="' + r + '"' + ((u ? u.role : 'viewer') === r ? ' selected' : '') + '>' + ROLE_AR[r] + '</option>').join('');
+  const role = u ? u.role : 'viewer';
+  openModal(isNewU ? 'مستخدم جديد' : 'تعديل المستخدم', '<form id="userForm" autocomplete="off">' +
+    '<label class="f"><span>اسم المستخدم</span><input id="uName" dir="ltr" maxlength="32" autocapitalize="off" spellcheck="false" value="' + esc(u ? u.username : '') + '" placeholder="user1"></label>' +
+    (isNewU ? '<label class="f"><span>كلمة المرور</span><input id="uPass" dir="ltr" autocomplete="off" placeholder="6 حروف أو أرقام على الأقل"></label>' : '') +
+    '<label class="f"><span>الدور</span><select id="uRole">' + roles + '</select></label>' +
+    '<div id="rgnWrap"' + (role === 'admin' ? ' hidden' : '') + '><div class="f"><span>المناطق المسموح له بيها</span></div>' + regionBoxHtml(u) + '</div>' +
+    (isNewU ? '' : '<label class="chk" style="margin-top:12px"><input type="checkbox" id="uActive"' + (u.active ? ' checked' : '') + (u.id === S.user.id ? ' disabled' : '') + '> الحساب فعّال</label>') +
+    '</form>', '<button class="btn-dark" data-act="submitUser" data-id="' + esc(u ? u.id : '') + '">' + (isNewU ? 'إنشاء المستخدم' : 'حفظ') + '</button><button class="btn-ghost" data-act="modalClose">إلغاء</button>');
+  $('#uRole').addEventListener('change', (e) => { $('#rgnWrap').hidden = e.target.value === 'admin'; });
+  $('#rgnAll').addEventListener('change', (e) => { document.querySelectorAll('.rgnOne').forEach((c) => { c.disabled = e.target.checked; }); });
+  $('#uName').focus();
+}
+
+async function submitUser(id) {
+  const role = $('#uRole').value;
+  const regions = role === 'admin' || $('#rgnAll').checked ? '*' : Array.from(document.querySelectorAll('.rgnOne:checked')).map((c) => c.value);
+  try {
+    let r;
+    if (!id) r = await withBusy(() => api('createUser', { username: $('#uName').value.trim(), password: $('#uPass').value, role: role, regions: regions }));
+    else r = await withBusy(() => api('updateUser', { id: id, username: $('#uName').value.trim(), role: role, regions: regions, active: $('#uActive').checked }));
+    S.users = r.users;
+    const mine = S.users.find((x) => x.id === S.user.id);
+    if (mine && mine.username !== S.user.username) { S.user.username = mine.username; render(); } closeModal(); toast(id ? 'تم حفظ التعديلات ✓' : 'تم إنشاء المستخدم ✓', 'ok'); viewUsers();
+  } catch (e) { fail(e); }
+}
+
+function pwdModal(u) {
+  openModal('تغيير كلمة المرور — ' + u.username, '<form id="pwdForm" autocomplete="off"><label class="f"><span>كلمة المرور الجديدة</span>' +
+    '<input id="pNew" dir="ltr" autocomplete="off" placeholder="6 حروف أو أرقام على الأقل"></label>' +
+    (u.id === S.user.id ? '<div class="hint" style="margin:0">هتفضل داخل بحسابك بعد التغيير.</div>' : '<div class="hint" style="margin:0">لو المستخدم داخل دلوقتي هيتسجّل خروجه ويدخل بالباسورد الجديد.</div>') + '</form>',
+    '<button class="btn-dark" data-act="submitPwd" data-id="' + esc(u.id) + '">حفظ كلمة المرور</button><button class="btn-ghost" data-act="modalClose">إلغاء</button>');
+  $('#pNew').focus();
+}
+
+async function submitPwd(id) {
+  try {
+    const r = await withBusy(() => api('setPassword', { id: id, password: $('#pNew').value }));
+    if (r.token) { S.token = r.token; saveSession(); }
+    S.users = r.users; closeModal(); toast('تم تغيير كلمة المرور ✓', 'ok'); viewUsers();
+  } catch (e) { fail(e); }
+}
+
+/* ====================================================================
+   إدارة المناطق (للمدير)
+   ==================================================================== */
+function regionsModal() {
+  const rows = S.regions.map((r) => '<div class="rrow"><input class="inp" id="rn_' + esc(r.id) + '" value="' + esc(r.name) + '" maxlength="60">' +
+    '<button class="btn-light" data-act="renRegion" data-id="' + esc(r.id) + '">حفظ الاسم</button>' +
+    '<button class="icon-btn danger" data-act="delRegion" data-id="' + esc(r.id) + '" title="حذف">' + icon('trash', 16) + '</button></div>').join('');
+  openModal('إدارة المناطق', (rows || '<div class="empty-sm">مفيش مناطق</div>') +
+    '<hr style="border:0;border-top:1px solid var(--line);margin:14px 0"><div class="rrow"><input class="inp" id="newRegion" placeholder="اسم منطقة جديدة" maxlength="60">' +
+    '<button class="btn-amber" data-act="addRegion">' + icon('plus', 15) + ' إضافة</button></div>' +
+    '<div class="hint" style="margin-top:6px">المنطقة اللي فيها فنادق مينفعش تتحذف. التغييرات هنا بتتنفذ فورًا وبتتسجل في السجل.</div>', '<button class="btn-ghost" data-act="modalClose">إغلاق</button>', true);
+}
+
+async function regionOp(action, params) {
+  try {
+    const r = await withBusy(() => api(action, params));
+    S.regions = r.data.regions;
+    if (S.region !== 'all' && !S.regions.some((x) => x.id === S.region)) S.region = 'all';
+    if (S.rRegion !== 'all' && !S.regions.some((x) => x.id === S.rRegion)) S.rRegion = 'all';
+    S.logs = { items: [], hasMore: false, loaded: false, offset: 0 };
+    regionsModal(); renderChips(); renderList(); renderEditor();
+    toast('تم ✓', 'ok');
+  } catch (e) { fail(e); }
+}
+
+/* ====================================================================
+   النوافذ المنبثقة
+   ==================================================================== */
+function openModal(title, body, footer, wide) {
+  $('#modalRoot').innerHTML = '<div class="modal-ov" data-act="ovClose"><div class="modal' + (wide ? ' wide' : '') + '" role="dialog" aria-modal="true">' +
+    '<div class="m-head"><h3>' + esc(title) + '</h3><button class="icon-btn" data-act="modalClose" title="إغلاق">' + icon('x', 18) + '</button></div>' +
+    '<div class="m-body">' + body + '</div><div class="m-foot">' + footer + '</div></div></div>';
+}
+function closeModal() { $('#modalRoot').innerHTML = ''; }
+function alertBox(title, lines, note) {
+  openModal(title, '<ul class="plain">' + lines.map((l) => '<li>' + esc(l) + '</li>').join('') + '</ul>' + (note ? '<div class="hint">' + esc(note) + '</div>' : ''),
+    '<button class="btn-dark" data-act="modalClose">تمام</button>');
+}
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+document.addEventListener('submit', (e) => {
+  if (e.target.id === 'userForm') { e.preventDefault(); const b = $('[data-act="submitUser"]'); if (b) b.click(); }
+  if (e.target.id === 'pwdForm') { e.preventDefault(); const b = $('[data-act="submitPwd"]'); if (b) b.click(); }
+});
+
+/* ====================================================================
+   الأحداث (Click delegation)
+   ==================================================================== */
+document.addEventListener('click', async (e) => {
+  const el = e.target.closest && e.target.closest('[data-act]');
+  if (!el) return;
+  const act = el.dataset.act, id = el.dataset.id;
+  if (act === 'ovClose') { if (e.target === el) closeModal(); return; }
+  if (el.disabled) return;
+  if (act !== 'select') e.stopPropagation();
+  const ri = Number(el.dataset.ri), pi = Number(el.dataset.pi), si = Number(el.dataset.si);
+
+  switch (act) {
+    case 'tab': S.tab = el.dataset.tab; if (S.tab === 'logs') S.logs = { items: [], hasMore: false, loaded: false, offset: 0 }; if (S.tab === 'users') S.users = null; render(); break;
+    case 'logout':
+      if (computePending().count && !confirm('فيه تعديلات غير محفوظة وهتضيع لو خرجت. تخرج برضه؟')) break;
+      logout(); break;
+    case 'saveAll': saveAll(); break;
+    case 'chip': S.region = id; renderChips(); renderList(); break;
+    case 'rchip': S.rRegion = id; viewReports(); break;
+    case 'select': if (e.target.closest('.icon-btn[data-act]')) break; S.selected = id; renderList(); renderEditor(); break;
+    case 'newHotel': newHotel(); break;
+    case 'moveUp': moveStep(id, -1); break;
+    case 'moveDown': moveStep(id, 1); break;
+    case 'delHotel': {
+      const h = selectedHotel(); if (!h) break;
+      if (!confirm('حذف الفندق «' + (hname(h) || 'جديد') + '»؟\nالحذف بيتم فعليًا عند الضغط على «حفظ في قاعدة البيانات».')) break;
+      removeHotelLocal(h.id); renderChips(); renderList(); renderEditor(); updateSaveBtn(); break;
+    }
+    case 'revertHotel': {
+      const h = selectedHotel(); if (!h) break;
+      if (h.isNew) removeHotelLocal(h.id);
+      else { const sv = S.savedData[h.id]; if (sv) { h.regionId = sv.regionId; h.data = clone(sv.data); } }
+      renderChips(); renderList(); renderEditor(); updateSaveBtn(); break;
+    }
+    case 'addRoom': { const h = selectedHotel(); h.data.rooms.push(emptyRoom()); renderEditor(); refreshChrome(); break; }
+    case 'delRoom': { const h = selectedHotel(); h.data.rooms.splice(ri, 1); renderEditor(); refreshChrome(); break; }
+    case 'addPeriod': { const h = selectedHotel(); h.data.rooms[ri].periods.push(emptyPeriod()); renderEditor(); refreshChrome(); break; }
+    case 'delPeriod': { const h = selectedHotel(); h.data.rooms[ri].periods.splice(pi, 1); renderEditor(); refreshChrome(); break; }
+    case 'addSection': { const h = selectedHotel(); h.data.sections.push({ title: '', items: [] }); renderEditor(); refreshChrome(); break; }
+    case 'delSection': { const h = selectedHotel(); h.data.sections.splice(si, 1); renderEditor(); refreshChrome(); break; }
+    case 'manageRegions': regionsModal(); break;
+    case 'addRegion': regionOp('createRegion', { name: $('#newRegion').value }); break;
+    case 'renRegion': regionOp('renameRegion', { id: id, name: $('#rn_' + id).value }); break;
+    case 'delRegion': if (confirm('حذف المنطقة «' + regionName(id) + '»؟')) regionOp('deleteRegion', { id: id }); break;
+    case 'print': fitReport(); window.print(); break;
+    case 'refreshLogs': loadLogs(true); break;
+    case 'moreLogs': loadLogs(false); break;
+    case 'undo': undoLog(id); break;
+    case 'newUser': userModal(null); break;
+    case 'editUser': userModal(S.users.find((u) => u.id === id)); break;
+    case 'pwdUser': pwdModal(S.users.find((u) => u.id === id)); break;
+    case 'submitUser': submitUser(id); break;
+    case 'submitPwd': submitPwd(id); break;
+    case 'delUser': {
+      const u = S.users.find((x) => x.id === id);
+      if (!u || !confirm('حذف المستخدم «' + u.username + '» نهائيًا؟')) break;
+      try { const r = await withBusy(() => api('deleteUser', { id: id })); S.users = r.users; toast('تم الحذف ✓', 'ok'); viewUsers(); } catch (ex) { fail(ex); }
+      break;
+    }
+    case 'modalClose': closeModal(); break;
+  }
+});
+
+/* ====================================================================
+   التشغيل
+   ==================================================================== */
+async function boot() {
+  let saved = null;
+  try { saved = JSON.parse(localStorage.getItem(LS_KEY) || 'null'); } catch (e) { saved = null; }
+  if (saved && saved.token && API_URL && Date.now() - (saved.last || 0) < IDLE_MS) {
+    $('#app').innerHTML = '<div class="login-wrap"><div class="spinner"></div></div>';
+    S.token = saved.token;
+    try {
+      const r = await api('bootstrap');
+      applyServer(r.data); S.lastActive = Date.now(); S.tab = defaultTab();
+      return render();
+    } catch (e) {
+      S.token = null; clearSession();
+      return renderLogin(e.code === 'auth' ? '' : e.message);
+    }
+  }
+  clearSession();
+  renderLogin();
+}
+boot();
+})();
+</script>
+</body>
+</html>
